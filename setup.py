@@ -272,7 +272,9 @@ class build_ext_checked(build_ext):
             return  # no readelf; skip rather than fail the build
 
         # Otherwise they must come from a shared library at load time.
-        needed = re.findall(r"NEEDED\).*?\[([^\]]+)\]", dyn)
+        # GNU and LLVM readelf print the tag as "(NEEDED)", elftoolchain
+        # readelf (e.g. FreeBSD 14 and earlier) as plain "NEEDED".
+        needed = re.findall(r"\bNEEDED\b.*?\[([^\]]+)\]", dyn)
         if not any(re.search(r"blas|lapack|mkl|accelerate", n, re.I) for n in needed):
             raise SystemExit(
                 "%s references BLAS but cannot resolve it: the BLAS routines are "
