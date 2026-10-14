@@ -773,12 +773,12 @@ class oc_elastic_mlogistic:
                 for ii in range(0, m):
                     cls_sub = np.delete(cls_set, ii)
                     TP = sum(y[y_labels == (ii + 1)] == (ii + 1))
-                    FP = sum(y[np.in1d(y_labels, cls_sub)] == (ii + 1))
+                    FP = sum(y[np.isin(y_labels, cls_sub)] == (ii + 1))
                     TN = sum(
-                        y[np.in1d(y_labels, cls_sub)]
-                        == y_labels[np.in1d(y_labels, cls_sub)]
+                        y[np.isin(y_labels, cls_sub)]
+                        == y_labels[np.isin(y_labels, cls_sub)]
                     )
-                    FN = sum(np.in1d(y[y_labels == (ii + 1)], cls_sub))
+                    FN = sum(np.isin(y[y_labels == (ii + 1)], cls_sub))
                     PC[ii] = (TP + TN) / float(TP + FP + FN + TN)
 
                 self.PC = sum(y == y_labels) / float(y_labels.size)
@@ -815,13 +815,13 @@ class oc_elastic_mlogistic:
             cls_set = np.arange(1, m + 1)
             for ii in range(0, m):
                 cls_sub = np.delete(cls_set, ii)
-                TP = sum(y[y_labels == (ii + 1)] == (ii + 1))
-                FP = sum(y[np.in1d(y_labels, cls_sub)] == (ii + 1))
+                TP = sum(self.y[y_labels == (ii + 1)] == (ii + 1))
+                FP = sum(self.y[np.isin(y_labels, cls_sub)] == (ii + 1))
                 TN = sum(
-                    y[np.in1d(y_labels, cls_sub)]
-                    == y_labels[np.in1d(y_labels, cls_sub)]
+                    self.y[np.isin(y_labels, cls_sub)]
+                    == y_labels[np.isin(y_labels, cls_sub)]
                 )
-                FN = sum(np.in1d(y[y_labels == (ii + 1)], cls_sub))
+                FN = sum(np.isin(self.y[y_labels == (ii + 1)], cls_sub))
                 PC[ii] = (TP + TN) / float(TP + FP + FN + TN)
 
             self.PC = sum(self.y == y_labels) / float(y_labels.size)
