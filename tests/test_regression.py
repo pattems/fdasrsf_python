@@ -128,3 +128,49 @@ def test_elastic_mlpcr_regression_classifies_training_data():
     model.predict()
     assert set(np.unique(model.y_labels)) <= {1, 2, 3}
     assert model.PCo > 0.9
+
+
+@pytest.fixture
+def three_class_functions():
+    """Three classes of peaks that differ in amplitude."""
+    rng = np.random.default_rng(2)
+    M, per_class = 50, 5
+    time = np.linspace(0, 1, M)
+    f, y = [], []
+    for label, amp in enumerate([1.0, 2.0, 3.0], start=1):
+        for _ in range(per_class):
+            c = rng.uniform(0.4, 0.6)
+            f.append(amp * np.exp(-((time - c) ** 2) / 0.01))
+            y.append(label)
+    return np.array(f).T, np.array(y), time
+
+
+@pytest.mark.slow
+def test_elastic_mlogistic_predict_with_labels(three_class_functions):
+    pytest.importorskip("mlogit_warp")
+    f, y, time = three_class_functions
+    model = fs.elastic_mlogistic(f, y, time)
+    model.calc_model(max_itr=2, df=10, cores=1)
+    model.predict({"f": f, "time": time, "y": y, "smooth": False})
+    assert model.y_labels.shape == y.shape
+    assert 0 <= model.PC <= 1
+    model.predict()
+    assert model.y_labels.shape == y.shape
+    assert 0 <= model.PC <= 1
+
+
+@pytest.mark.slow
+def test_oc_elastic_mlogistic_predict_with_labels(three_class_functions):
+    pytest.importorskip("ocmlogit_warp")
+    from fdasrsf.curve_regression import oc_elastic_mlogistic
+
+    f, y, time = three_class_functions
+    beta = np.stack([np.tile(time[:, np.newaxis], (1, y.size)), f])
+    model = oc_elastic_mlogistic(beta, y)
+    model.calc_model(df=10, T=time.size, max_itr=2, cores=1)
+    model.predict({"beta": beta, "y": y})
+    assert model.y_labels.shape == y.shape
+    assert 0 <= model.PC <= 1
+    model.predict()
+    assert model.y_labels.shape == y.shape
+    assert 0 <= model.PC <= 1
