@@ -1055,6 +1055,8 @@ def mlogit_warp_grad(
 
     alpha = alpha / norm(alpha)
     q, scale = cf.scale_curve(q)  # q/norm(q)
+    # normalize a copy: nu is the caller's model (e.g. oc_elastic_mlogistic.nu)
+    nu = nu.copy()
     for ii in range(0, nu.shape[2]):
         nu[:, :, ii], scale = cf.scale_curve(nu[:, :, ii])  # nu/norm(nu)
 

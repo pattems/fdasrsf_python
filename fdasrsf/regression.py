@@ -905,7 +905,8 @@ def mlogit_warp_grad(
 
     gam_old = mw.mlogit_warp(
         np.ascontiguousarray(alpha),
-        np.ascontiguousarray(beta),
+        # mlogit_warp normalizes beta in place; pass a copy, not the model's beta
+        np.array(beta, order="C"),
         time,
         np.ascontiguousarray(q),
         np.ascontiguousarray(y, dtype=np.int32),
